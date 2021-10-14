@@ -15,9 +15,5 @@ jobs:
           node-version: 14.17.6
       - name: Global Dependencies
         run: npm install --global firebase-tools @angular/cli
-      - name: Local Dependencies
-        run: npm install
-      - name: Build For Production
-        run: ng build
       - name: Deploy to Firebase Hosting
         run: firebase deploy --project ${{ secrets.FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }}
