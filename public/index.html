@@ -151,6 +151,7 @@
         troll = 2;
         spinTime = 0;
         spinTimeTotal = Math.random() * 100 + 500;
+        spinTimeout && clearTimeout(spinTimeout);
         rotateWheel();
       }
 
@@ -174,7 +175,6 @@
       }
 
       function stopRotateWheel() {
-        isPlayer = false;
         clearTimeout(spinTimeout);
         var degrees = (startAngle * 180) / Math.PI + 90;
         var arcd = (arc * 180) / Math.PI;
@@ -184,12 +184,11 @@
         var winner = users[index];
         ctx.fillText(winner, 250 - ctx.measureText(winner).width / 2, 250 + 10);
         ctx.restore();
-        ref
-          .push({
-            winner,
-            createdAt: firebase.database.ServerValue.TIMESTAMP,
-          })
-          .catch((e) => console.warn("[DATABASE UPDATE ERROR]", e));
+        console.log(spinTime);
+        ref.push({
+          winner,
+          createdAt: firebase.database.ServerValue.TIMESTAMP,
+        });
       }
 
       function easeOut(t, b, c, d) {
@@ -200,15 +199,18 @@
 
       drawRouletteWheel();
 
-      ref.on("child_added", (snap) => {
-        var el = document.createElement("li");
-        var { createdAt, winner } = snap.val();
-        createdAt = new Date(createdAt).toLocaleString("en-US", {
-          timeZone: "Asia/Yangon",
+      ref
+        .orderByKey()
+        .limitToLast(15)
+        .on("child_added", (snap) => {
+          var el = document.createElement("li");
+          var { createdAt, winner } = snap.val();
+          createdAt = new Date(createdAt).toLocaleString("en-US", {
+            timeZone: "Asia/Yangon",
+          });
+          el.innerHTML = `${winner} <span style="color:#666;font-family:monospace;">${createdAt}</span>`;
+          winnersEl.prepend(el);
         });
-        el.innerHTML = `${winner} <span style="color:#666;font-family:monospace;">${createdAt}</span>`;
-        winnersEl.prepend(el);
-      });
     </script>
   </body>
 </html>
