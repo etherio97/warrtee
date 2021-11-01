@@ -9,8 +9,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spinner Wheel</title>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/firebase@8.x.x/firebase-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@8.x.x/firebase-database.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/firebase@8.x.x/firebase-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@8.x.x/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
     <style>
       html,
@@ -19,14 +19,30 @@
         padding: 0;
         height: 100vh;
         display: flex;
-        justify-content: center;
+        justify-content: start;
+        flex-direction: column;
         align-items: center;
       }
     </style>
+    <script>
+      firebase.initializeApp({
+        apiKey: "AIzaSyDfFGud0C1biryfsRcK690l4ex9N_E3dw0",
+        authDomain: "warr-tee.firebaseapp.com",
+        databaseURL: "https://warr-tee-default-rtdb.firebaseio.com",
+        projectId: "warr-tee",
+        storageBucket: "warr-tee.appspot.com",
+        messagingSenderId: "465947695117",
+        appId: "1:465947695117:web:d9fcd7a6b511c70b76dd44",
+        measurementId: "G-C7ZB1G2QWL",
+      });
+      const ref = firebase.database().ref("winners");
+    </script>
   </head>
   <body>
     <canvas id="canvas" width="500" height="500" onclick="spin();"></canvas>
+    <ul id="winners"></ul>
     <script>
+      var winnersEl = document.querySelector("#winners");
       var colors = [
         "#B8D430",
         "#3AB745",
@@ -71,7 +87,7 @@
       var spinTime = 0;
       var spinTimeTotal = 0;
 
-      var troll = 3;
+      var troll = 2;
       var ctx;
 
       function drawRouletteWheel() {
@@ -132,18 +148,18 @@
 
       function spin() {
         spinAngleStart = Math.random() * 10 + 10;
-        troll = 3;
+        troll = 2;
         spinTime = 0;
-        spinTimeTotal = Math.random() * 10 + 2000;
+        spinTimeTotal = Math.random() * 100 + 500;
         rotateWheel();
       }
 
       function rotateWheel() {
-        spinTime += 5;
+        spinTime += 1;
         if (spinTime >= spinTimeTotal) {
           if (troll > 0 && Math.random() > 0.35) {
             troll--;
-            spinTime -= Math.random() * 200 + 1000;
+            spinTime -= Math.random() * 200 + 50;
             rotateWheel();
           } else {
             stopRotateWheel();
@@ -165,9 +181,15 @@
         var index = Math.floor((360 - (degrees % 360)) / arcd);
         ctx.save();
         ctx.font = "bold 30px Helvetica, Arial";
-        var text = users[index];
-        ctx.fillText(text, 250 - ctx.measureText(text).width / 2, 250 + 10);
+        var winner = users[index];
+        ctx.fillText(winner, 250 - ctx.measureText(winner).width / 2, 250 + 10);
         ctx.restore();
+        ref
+          .push({
+            winner,
+            createdAt: firebase.database.ServerValue.TIMESTAMP,
+          })
+          .catch((e) => console.warn("[DATABASE UPDATE ERROR]", e));
       }
 
       function easeOut(t, b, c, d) {
@@ -177,6 +199,16 @@
       }
 
       drawRouletteWheel();
+
+      ref.on("child_added", (snap) => {
+        var el = document.createElement("li");
+        var { createdAt, winner } = snap.val();
+        createdAt = new Date(createdAt).toLocaleString("en-US", {
+          timeZone: "Asia/Yangon",
+        });
+        el.innerHTML = `${winner} <span style="color:#666;font-family:monospace;">${createdAt}</span>`;
+        winnersEl.prepend(el);
+      });
     </script>
   </body>
 </html>
