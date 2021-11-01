@@ -160,7 +160,7 @@
         if (spinTime >= spinTimeTotal) {
           if (troll > 0 && Math.random() > 0.35) {
             troll--;
-            spinTime -= Math.random() * 100 + 60;
+            spinTime -= Math.random() * 150 + 100;
             rotateWheel();
           } else {
             stopRotateWheel();
@@ -199,7 +199,7 @@
 
       drawRouletteWheel();
 
-      ref.set({});
+      // ref.set({});
 
       ref
         .orderByKey()
