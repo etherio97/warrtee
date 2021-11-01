@@ -132,8 +132,9 @@
 
       function spin() {
         spinAngleStart = Math.random() * 10 + 10;
+        troll = 3;
         spinTime = 0;
-        spinTimeTotal = Math.random() * 3 + 2 * 1000;
+        spinTimeTotal = Math.random() * 10 + 2000;
         rotateWheel();
       }
 
@@ -142,8 +143,7 @@
         if (spinTime >= spinTimeTotal) {
           if (troll > 0 && Math.random() > 0.35) {
             troll--;
-            spinTime -= Math.random() * 2000;
-            console.log(troll, spinTime);
+            spinTime -= Math.random() * 200 + 1000;
             rotateWheel();
           } else {
             stopRotateWheel();
